@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "InputSystem",
+    "name": "input_system",
     "maps": [],
     "controlSchemes": [
         {
