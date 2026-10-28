@@ -5,11 +5,11 @@ public class TMPPlayerMovement : NetworkBehaviour {
     InputSystem _inputs = null;
 
     void Awake() {
-        // if (!IsOwner) return;
-
         _inputs = new InputSystem();
-        _inputs.Enable();
     }
+
+    void OnEnable() => _inputs.Enable();
+    void OnDisable() => _inputs.Disable();
 
     void Update() {
         if (!IsOwner) return;
