@@ -51,16 +51,20 @@ public class GameNetworkManager : MonoBehaviour {
     public async void StartHost(int maxMembers) {
         NetworkManager.Singleton.OnServerStarted += _serverStarted;
         NetworkManager.Singleton.StartHost();
+        LobbyManager.instance.clientId = NetworkManager.Singleton.LocalClientId;
         currentLobby = await SteamMatchmaking.CreateLobbyAsync(maxMembers);
     }
 
-    void _serverStarted()
-        => Debug.Log("Host started");
+    void _serverStarted() {
+        LobbyManager.instance.hostCreated();
+        Debug.Log("Host started");
+    }
 
     void StartClient(SteamId id) {
         NetworkManager.Singleton.OnClientConnectedCallback += _clientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += _clientDisconnected;
         _transport.targetSteamId = id;
+        LobbyManager.instance.clientId = NetworkManager.Singleton.LocalClientId;
         if (NetworkManager.Singleton.StartClient())
             Debug.Log("Client started");
     }
@@ -80,6 +84,7 @@ public class GameNetworkManager : MonoBehaviour {
             // NetworkManager.Singleton.OnClientDisconnectCallback -= _clientDisconnected; ????????????????????
 
         NetworkManager.Singleton.Shutdown(true);
+        LobbyManager.instance.disconnected();
         Debug.Log("Disconnected");
     }
 
@@ -122,6 +127,7 @@ public class GameNetworkManager : MonoBehaviour {
         }
 
         currentLobby = lobby;
+        LobbyManager.instance.connectedAsClient();
         Debug.Log("Joined lobby");
     }
 }
