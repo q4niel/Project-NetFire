@@ -108,10 +108,12 @@ public class Networker : MonoBehaviour {
         Debug.Log($"Steam Lobby Created by: {lobby.Owner.Name}");
     }
 
-    async void _steamJoinLobby(Lobby lobby, SteamId id) {
-        Debug.Log("before status");
+    void _steamJoinLobby(Lobby lobby, SteamId id) {
+        _joinLobby(lobby, id);
+    }
+
+    async void _joinLobby(Lobby lobby, SteamId id) {
         RoomEnter status = await lobby.Join();
-        Debug.Log("after status");
 
         if (status != RoomEnter.Success) {
             Debug.Log($"Failed to Join Lobby: {status}");
@@ -128,14 +130,6 @@ public class Networker : MonoBehaviour {
         _trans.targetSteamId = this.lobby.Value.Owner.Id;
         if (!_man.StartClient()) return;
         Debug.Log("Client Started");
-    }
-
-    public void forceJoin(ulong id) {
-        if (_man.IsHost) return;
-
-        _trans.targetSteamId = id;
-        if (!_man.StartClient()) return;
-        Debug.Log("Client Started Through Forced Join");
     }
 
     void _steamLobbyMemberJoined(Lobby lobby, Friend friend)
