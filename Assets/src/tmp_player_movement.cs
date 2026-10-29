@@ -2,10 +2,10 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TMPPlayerMovement : NetworkBehaviour {
-    InputSystem _inputs = null;
+    InputActions _inputs = null;
 
     void Awake() {
-        _inputs = new InputSystem();
+        _inputs = new InputActions();
     }
 
     void OnEnable() => _inputs.Enable();
