@@ -74,10 +74,10 @@ public class Networker : MonoBehaviour {
         => _startHost(maxPlayers, LobbyType.Public);
 
     public void leaveLobby() {
+        Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");
         lobby?.Leave();
         lobby = null;
         _man?.Shutdown(true);
-        Debug.Log("Disconnected from Lobby");
     }
 
     void _steamLobbyCreated(Result result, Lobby lobby) {
