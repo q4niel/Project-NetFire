@@ -44,8 +44,6 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyMemberLeave += _steamLobbyMemberLeave;
         SteamMatchmaking.OnLobbyInvite += _steamLobbyInvite;
         SteamMatchmaking.OnLobbyGameCreated += _steamLobbyGameCreated;
-
-        SteamFriends.OnGameRichPresenceJoinRequested += _steamRPJoin;
     }
 
     void OnDestroy() {
@@ -57,8 +55,6 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyMemberLeave -= _steamLobbyMemberLeave;
         SteamMatchmaking.OnLobbyInvite -= _steamLobbyInvite;
         SteamMatchmaking.OnLobbyGameCreated -= _steamLobbyGameCreated;
-
-        SteamFriends.OnGameRichPresenceJoinRequested -= _steamRPJoin;
     }
 
     async void _startHost(int maxPlayers, LobbyType type) {
@@ -147,8 +143,4 @@ public class Networker : MonoBehaviour {
 
     void _steamLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId id)
         => Debug.Log("Lobby was created");
-
-    void _steamRPJoin(Friend friend, string str) {
-        Debug.Log($"_steamRPJoin:\n  Friend: {friend}\n  String: {str}");
-    }
 }
