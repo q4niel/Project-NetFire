@@ -109,7 +109,9 @@ public class Networker : MonoBehaviour {
     }
 
     async void _steamJoinLobby(Lobby lobby, SteamId id) {
+        Debug.Log("before status");
         RoomEnter status = await lobby.Join();
+        Debug.Log("after status");
 
         if (status != RoomEnter.Success) {
             Debug.Log($"Failed to Join Lobby: {status}");
