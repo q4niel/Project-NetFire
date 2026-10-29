@@ -39,12 +39,22 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyCreated += _steamLobbyCreated;
         SteamFriends.OnGameLobbyJoinRequested += _steamJoinLobby;
         SteamMatchmaking.OnLobbyEntered += _steamLobbyEntered;
+
+        SteamMatchmaking.OnLobbyMemberJoined += _steamLobbyMemberJoined;
+        SteamMatchmaking.OnLobbyMemberLeave += _steamLobbyMemberLeave;
+        SteamMatchmaking.OnLobbyInvite += _steamLobbyInvite;
+        SteamMatchmaking.OnLobbyGameCreated += _steamLobbyGameCreated;
     }
 
     void OnDestroy() {
         SteamMatchmaking.OnLobbyCreated -= _steamLobbyCreated;
         SteamFriends.OnGameLobbyJoinRequested -= _steamJoinLobby;
         SteamMatchmaking.OnLobbyEntered -= _steamLobbyEntered;
+
+        SteamMatchmaking.OnLobbyMemberJoined -= _steamLobbyMemberJoined;
+        SteamMatchmaking.OnLobbyMemberLeave -= _steamLobbyMemberLeave;
+        SteamMatchmaking.OnLobbyInvite -= _steamLobbyInvite;
+        SteamMatchmaking.OnLobbyGameCreated -= _steamLobbyGameCreated;
     }
 
     async void _startHost(int maxPlayers, LobbyType type) {
@@ -117,4 +127,16 @@ public class Networker : MonoBehaviour {
         if (!_man.StartClient()) return;
         Debug.Log("Client Started");
     }
+
+    void _steamLobbyMemberJoined(Lobby lobby, Friend friend)
+        => Debug.Log("Member join");
+
+    void _steamLobbyMemberLeave(Lobby lobby, Friend friend)
+        => Debug.Log("Member leave");
+
+    void _steamLobbyInvite(Friend friend, Lobby lobby)
+        => Debug.Log($"Invite from {friend.Name}");
+
+    void _steamLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId id)
+        => Debug.Log("Lobby was created");
 }
