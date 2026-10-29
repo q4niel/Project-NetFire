@@ -130,6 +130,14 @@ public class Networker : MonoBehaviour {
         Debug.Log("Client Started");
     }
 
+    public void forceJoin(ulong id) {
+        if (_man.IsHost) return;
+
+        _trans.targetSteamId = id;
+        if (!_man.StartClient()) return;
+        Debug.Log("Client Started Through Forced Join");
+    }
+
     void _steamLobbyMemberJoined(Lobby lobby, Friend friend)
         => Debug.Log("Member join");
 
