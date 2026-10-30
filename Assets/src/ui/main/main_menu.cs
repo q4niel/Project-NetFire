@@ -4,10 +4,16 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour {
     [SerializeField] Button _singleBtn;
+    [Space]
     [SerializeField] Button _multiBtn;
+    [SerializeField] GameObject _multiMenu;
+    [Space]
     [SerializeField] Button _systemBtn;
+    [Space]
     [SerializeField] Button _extrasBtn;
+    [Space]
     [SerializeField] Button _creditsBtn;
+    [Space]
     [SerializeField] Button _exitBtn;
 
     void OnEnable() {
@@ -30,7 +36,10 @@ public class MainMenu : MonoBehaviour {
 
     void _single() => _notImpl();
 
-    void _multi() {}
+    void _multi() {
+        _multiMenu.SetActive(true);
+        gameObject.SetActive(false);
+    }
 
     void _system() => _notImpl();
     void _extras() => _notImpl();
