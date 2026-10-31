@@ -1,0 +1,14 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="lobby" style="width: 46%; height: 80%; background-color: rgba(0, 0, 0, 0.196); top: 15%; right: auto; left: 2%; position: absolute;">
+        <ui:VisualElement name="label" style="flex-grow: 1; width: 25%; height: 12.5%; position: absolute; left: 35%; top: -16%; background-color: rgba(0, 0, 0, 0.196);">
+            <ui:Label text="Lobby" style="color: rgb(255, 255, 255); position: absolute; top: 0%; left: 0%; width: 100%; height: 100%; -unity-text-align: middle-center; font-size: 43px; -unity-font-style: bold; letter-spacing: 6.7px;"/>
+        </ui:VisualElement>
+        <ui:ListView name="lobby_list" style="position: absolute; width: 90%; height: 90%; left: 5%; top: 5%;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="friends" style="width: 46%; height: 80%; background-color: rgba(0, 0, 0, 0.196); top: 15%; right: 2%; left: auto; position: absolute;">
+        <ui:VisualElement name="label" style="flex-grow: 1; width: 25%; height: 12.5%; position: absolute; left: 35%; top: -16%; background-color: rgba(0, 0, 0, 0.196);">
+            <ui:Label text="Friends" style="color: rgb(255, 255, 255); position: absolute; top: 0%; left: 0%; width: 100%; height: 100%; -unity-text-align: middle-center; font-size: 43px; -unity-font-style: bold; letter-spacing: 6.7px;"/>
+        </ui:VisualElement>
+        <ui:ListView name="friends_list" style="position: absolute; width: 90%; height: 90%; left: 5%; top: 5%;"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -3,7 +3,12 @@ using Unity.Netcode;
 using Steamworks;
 using Steamworks.Data;
 using Netcode.Transports.Facepunch;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+using System.Threading.Tasks;
 
+[DefaultExecutionOrder(-1000)]
 public class Networker : MonoBehaviour {
     public enum LobbyType {
         Private,
@@ -23,6 +28,7 @@ public class Networker : MonoBehaviour {
 
     NetworkManager _man = null;
     FacepunchTransport _trans = null;
+
     LobbyType lobbyType = LobbyType.Private;
 
     void Awake() {
@@ -44,6 +50,8 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyMemberLeave += _steamLobbyMemberLeave;
         SteamMatchmaking.OnLobbyInvite += _steamLobbyInvite;
         SteamMatchmaking.OnLobbyGameCreated += _steamLobbyGameCreated;
+
+        _startHost();
     }
 
     void OnDestroy() {
@@ -57,21 +65,66 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyGameCreated -= _steamLobbyGameCreated;
     }
 
-    async void _startHost(int maxPlayers, LobbyType type) {
-        if (!_man.StartHost()) return;
-        lobbyType = type;
-        lobby = await SteamMatchmaking.CreateLobbyAsync(maxPlayers);
-        Debug.Log("Host Started");
+    public async Task<Texture2D> getFriendTexture(Friend f) {
+
+        static Texture2D img2Tex(Image img) {
+            Texture2D tex = new Texture2D (
+                (int)img.Width,
+                (int)img.Height
+            );
+
+            for (int i = 0; i < img.Width; i++) {
+
+                for (int j = 0; j < img.Height; j++) {
+                    Steamworks.Data.Color pixels = img.GetPixel(i, j);
+
+                    tex.SetPixel (
+                        i,
+                        (int)img.Height - j,
+                        new UnityEngine.Color (
+                            pixels.r / 255f,
+                            pixels.g / 255f,
+                            pixels.b / 255f,
+                            pixels.a / 255f
+                        )
+                    );
+                }
+            }
+
+            tex.Apply();
+            return tex;
+        }
+
+        Image? img = await f.GetLargeAvatarAsync();
+        return img2Tex(img.Value);
     }
 
-    public void hostPrivate(int maxPlayers)
-        => _startHost(maxPlayers, LobbyType.Private);
+    public List<Friend> getLobbyFriends() => lobby.HasValue
+        ? lobby.Value.Members.ToList()
+        : null
+    ;
 
-    public void hostFriendsOnly(int maxPlayers)
-        => _startHost(maxPlayers, LobbyType.Friends);
+    public List<Friend> getOutsideFriends() {
+        List<Friend> lobbyFs = getLobbyFriends();
+        IEnumerable<Friend> allFs = SteamFriends.GetFriends();
 
-    public void hostPublic(int maxPlayers)
-        => _startHost(maxPlayers, LobbyType.Public);
+        if (lobbyFs == null) return allFs.ToList();
+
+        HashSet<Friend> sort = allFs.ToHashSet();
+
+        foreach (Friend f in getLobbyFriends()) {
+            if (!sort.Contains(f)) continue;
+            sort.Remove(f);
+        }
+
+        return sort.ToList();
+    }
+
+    async void _startHost() {
+        if (!_man.StartHost()) return;
+        lobby = await SteamMatchmaking.CreateLobbyAsync();
+        Debug.Log("Host Started");
+    }
 
     public void leaveLobby() {
         Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");

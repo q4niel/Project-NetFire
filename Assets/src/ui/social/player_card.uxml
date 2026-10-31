@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Image name="avatar" style="height: 100%; width: auto; position: absolute; bottom: auto; right: auto; left: 0%; aspect-ratio: 1; background-color: rgb(255, 0, 250);">
+        <ui:Label text="Player Name" name="name" style="-unity-text-align: middle-left; color: rgb(255, 255, 255); left: 110%; right: auto; height: 100%; width: 300%; font-size: 40px; -unity-font-style: bold; letter-spacing: 5px; position: absolute;"/>
+    </ui:Image>
+</ui:UXML>
