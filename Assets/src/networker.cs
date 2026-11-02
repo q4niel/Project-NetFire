@@ -6,7 +6,6 @@ using Netcode.Transports.Facepunch;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.Threading.Tasks;
 
 [DefaultExecutionOrder(-1000)]
 public class Networker : MonoBehaviour {
@@ -65,7 +64,7 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyGameCreated -= _steamLobbyGameCreated;
     }
 
-    public async Task<Texture2D> getFriendTexture(Friend f) {
+    public Texture2D getFriendTexture(Friend f) {
 
         static Texture2D img2Tex(Image img) {
             Texture2D tex = new Texture2D (
@@ -95,8 +94,16 @@ public class Networker : MonoBehaviour {
             return tex;
         }
 
-        Image? img = await f.GetLargeAvatarAsync();
-        return img2Tex(img.Value);
+        Texture2D tex = Texture2D.whiteTexture;
+
+        new Action (
+            async () => {
+                Image? img = await f.GetLargeAvatarAsync();
+                tex = img2Tex(img.Value);
+            }
+        )();
+
+        return tex;
     }
 
     public List<Friend> getLobbyFriends() => lobby.HasValue

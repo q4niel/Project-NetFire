@@ -29,18 +29,19 @@ public class SocialUI : MonoBehaviour {
             return _playerCard.Instantiate();
         };
 
+        List<Friend> outFs = Networker.instance.getOutsideFriends();
+
         list.bindItem = (element, index) => {
-            List<Friend> fs = Networker.instance.getOutsideFriends();
-            if (index > fs.Count()) return;
+            if (index > outFs.Count()) return;
 
             element.Q<Image>("avatar").image = Networker.instance.getFriendTexture (
-                fs[index]
-            ).Result;
+                outFs[index]
+            );
 
-            element.Q<Label>("name").text = fs[index].Name;
+            element.Q<Label>("name").text = outFs[index].Name;
         };
 
-        list.itemsSource = Networker.instance.getOutsideFriends();
+        list.itemsSource = outFs;
         list.fixedItemHeight = 80;
         list.Rebuild();
     }
