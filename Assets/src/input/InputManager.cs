@@ -1,5 +1,3 @@
-using UnityEngine;
-
 class InputManager {
     static InputManager _inst = null;
 

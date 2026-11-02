@@ -6,24 +6,46 @@ using Netcode.Transports.Facepunch;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-[DefaultExecutionOrder(-1000)]
 public class Networker : MonoBehaviour {
+    [SerializeField] GameObject mainMenuObj;
+
     public enum LobbyType {
         Private,
         Friends,
         Public
     };
 
+    public class SteamFriendCollection {
+        public List<Friend> inLobby = new List<Friend>();
+        public List<Friend> inGame = new List<Friend>();
+        public List<Friend> online = new List<Friend>();
+        public List<Friend> offline = new List<Friend>();
+    };
+
+    public SteamFriendCollection steamFriends {
+        get;
+        private set;
+    } = new SteamFriendCollection();
+
     public static Networker instance {
         get;
         private set;
     } = null;
 
+    public static Action onFriendUpdate;
+
     public Lobby? lobby {
         get;
         private set;
     } = null;
+
+    public bool isValid {
+        get;
+        private set;
+    } = SteamClient.IsValid;
 
     NetworkManager _man = null;
     FacepunchTransport _trans = null;
@@ -50,7 +72,13 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyInvite += _steamLobbyInvite;
         SteamMatchmaking.OnLobbyGameCreated += _steamLobbyGameCreated;
 
-        _startHost();
+        InputManager.instance().actions.UI.Enable();
+        InputManager.instance().actions.Intro.Enable();
+        InputManager.instance().actions.Intro.intro.performed += _introSequence;
+    }
+
+    void OnDisable() {
+        leaveLobby();
     }
 
     void OnDestroy() {
@@ -64,9 +92,17 @@ public class Networker : MonoBehaviour {
         SteamMatchmaking.OnLobbyGameCreated -= _steamLobbyGameCreated;
     }
 
+    void _introSequence(InputAction.CallbackContext cntx) {
+        InputManager.instance().actions.Intro.intro.performed -= _introSequence;
+        InputManager.instance().actions.Intro.Disable();
+        _startHost();
+        Destroy(GetComponentInChildren<PanelRenderer>().gameObject);
+        mainMenuObj.SetActive(true);
+    }
+
     public Texture2D getFriendTexture(Friend f) {
 
-        static Texture2D img2Tex(Image img) {
+        static Texture2D img2Tex(Steamworks.Data.Image img) {
             Texture2D tex = new Texture2D (
                 (int)img.Width,
                 (int)img.Height
@@ -98,12 +134,40 @@ public class Networker : MonoBehaviour {
 
         new Action (
             async () => {
-                Image? img = await f.GetLargeAvatarAsync();
+                Steamworks.Data.Image? img = await f.GetLargeAvatarAsync();
                 tex = img2Tex(img.Value);
             }
         )();
 
         return tex;
+    }
+
+    void _updateFriends() {
+        steamFriends.inLobby.Clear();
+        steamFriends.inGame.Clear();
+        steamFriends.online.Clear();
+        steamFriends.offline.Clear();
+
+        HashSet<Friend> inLobby = lobby.Value.Members.ToHashSet();
+
+        foreach (Friend f in SteamFriends.GetFriends().ToList()) {
+            if (inLobby.Contains(f)) {
+                steamFriends.inLobby.Add(f);
+                continue;
+            }
+
+            if (f.IsPlayingThisGame) {
+                steamFriends.inGame.Add(f);
+                continue;
+            }
+
+            if (f.IsOnline)
+                steamFriends.online.Add(f);
+            else
+                steamFriends.offline.Add(f);
+        }
+
+        onFriendUpdate?.Invoke();
     }
 
     public List<Friend> getLobbyFriends() => lobby.HasValue
@@ -135,8 +199,8 @@ public class Networker : MonoBehaviour {
 
     public void leaveLobby() {
         Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");
-        lobby?.Leave();
-        lobby = null;
+        // lobby?.Leave();
+        // lobby = null;
         _man?.Shutdown(true);
     }
 
@@ -185,6 +249,8 @@ public class Networker : MonoBehaviour {
     }
 
     void _steamLobbyEntered(Lobby lobby) {
+        _updateFriends();
+
         if (_man.IsHost) return;
 
         _trans.targetSteamId = this.lobby.Value.Owner.Id;

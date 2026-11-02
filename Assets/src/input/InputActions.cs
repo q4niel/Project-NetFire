@@ -89,75 +89,31 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     ""name"": ""InputActions"",
     ""maps"": [
         {
-            ""name"": ""dev"",
-            ""id"": ""558ad29f-c921-4d7e-9495-af5b46f02d40"",
+            ""name"": ""Intro"",
+            ""id"": ""0467d3de-aa43-4606-9827-68b77f9174e6"",
             ""actions"": [
                 {
-                    ""name"": ""move"",
-                    ""type"": ""Value"",
-                    ""id"": ""89681495-a3a1-47e6-82ca-87079fe4276e"",
-                    ""expectedControlType"": ""Vector2"",
+                    ""name"": ""intro"",
+                    ""type"": ""Button"",
+                    ""id"": ""822e141a-0507-4376-bfdd-3dffbab99cc4"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true,
+                    ""initialStateCheck"": false,
                     ""priority"": 0
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": ""arrows"",
-                    ""id"": ""1446d894-42d2-475a-9693-f50a1e670f51"",
-                    ""path"": ""2DVector"",
+                    ""name"": """",
+                    ""id"": ""d8ce739e-1844-4eb4-9d86-94cc0467110f"",
+                    ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""move"",
-                    ""isComposite"": true,
+                    ""action"": ""intro"",
+                    ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""up"",
-                    ""id"": ""361e575e-fd0b-45bb-9461-f6317a6f6339"",
-                    ""path"": ""<Keyboard>/upArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""c03ff53c-544d-45d1-b022-40ad78fb04bc"",
-                    ""path"": ""<Keyboard>/downArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""e39d2521-e326-4d14-b561-32b7f4825e92"",
-                    ""path"": ""<Keyboard>/leftArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""f9852e19-890b-4f63-9d39-4ce8206cff92"",
-                    ""path"": ""<Keyboard>/rightArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -751,9 +707,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     ]
 }");
-        // dev
-        m_dev = asset.FindActionMap("dev", throwIfNotFound: true);
-        m_dev_move = m_dev.FindAction("move", throwIfNotFound: true);
+        // Intro
+        m_Intro = asset.FindActionMap("Intro", throwIfNotFound: true);
+        m_Intro_intro = m_Intro.FindAction("intro", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -770,7 +726,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
 
     ~@InputActions()
     {
-        UnityEngine.Debug.Assert(!m_dev.enabled, "This will cause a leak and performance issues, InputActions.dev.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Intro.enabled, "This will cause a leak and performance issues, InputActions.Intro.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputActions.UI.Disable() has not been called.");
     }
 
@@ -844,29 +800,29 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // dev
-    private readonly InputActionMap m_dev;
-    private List<IDevActions> m_DevActionsCallbackInterfaces = new List<IDevActions>();
-    private readonly InputAction m_dev_move;
+    // Intro
+    private readonly InputActionMap m_Intro;
+    private List<IIntroActions> m_IntroActionsCallbackInterfaces = new List<IIntroActions>();
+    private readonly InputAction m_Intro_intro;
     /// <summary>
-    /// Provides access to input actions defined in input action map "dev".
+    /// Provides access to input actions defined in input action map "Intro".
     /// </summary>
-    public struct DevActions
+    public struct IntroActions
     {
         private @InputActions m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public DevActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public IntroActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "dev/move".
+        /// Provides access to the underlying input action "Intro/intro".
         /// </summary>
-        public InputAction @move => m_Wrapper.m_dev_move;
+        public InputAction @intro => m_Wrapper.m_Intro_intro;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_dev; }
+        public InputActionMap Get() { return m_Wrapper.m_Intro; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -874,9 +830,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="DevActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="IntroActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(DevActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(IntroActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -884,14 +840,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="DevActions" />
-        public void AddCallbacks(IDevActions instance)
+        /// <seealso cref="IntroActions" />
+        public void AddCallbacks(IIntroActions instance)
         {
-            if (instance == null || m_Wrapper.m_DevActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_DevActionsCallbackInterfaces.Add(instance);
-            @move.started += instance.OnMove;
-            @move.performed += instance.OnMove;
-            @move.canceled += instance.OnMove;
+            if (instance == null || m_Wrapper.m_IntroActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_IntroActionsCallbackInterfaces.Add(instance);
+            @intro.started += instance.OnIntro;
+            @intro.performed += instance.OnIntro;
+            @intro.canceled += instance.OnIntro;
         }
 
         /// <summary>
@@ -900,21 +856,21 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="DevActions" />
-        private void UnregisterCallbacks(IDevActions instance)
+        /// <seealso cref="IntroActions" />
+        private void UnregisterCallbacks(IIntroActions instance)
         {
-            @move.started -= instance.OnMove;
-            @move.performed -= instance.OnMove;
-            @move.canceled -= instance.OnMove;
+            @intro.started -= instance.OnIntro;
+            @intro.performed -= instance.OnIntro;
+            @intro.canceled -= instance.OnIntro;
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="DevActions.UnregisterCallbacks(IDevActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="IntroActions.UnregisterCallbacks(IIntroActions)" />.
         /// </summary>
-        /// <seealso cref="DevActions.UnregisterCallbacks(IDevActions)" />
-        public void RemoveCallbacks(IDevActions instance)
+        /// <seealso cref="IntroActions.UnregisterCallbacks(IIntroActions)" />
+        public void RemoveCallbacks(IIntroActions instance)
         {
-            if (m_Wrapper.m_DevActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_IntroActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -924,21 +880,21 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="DevActions.AddCallbacks(IDevActions)" />
-        /// <seealso cref="DevActions.RemoveCallbacks(IDevActions)" />
-        /// <seealso cref="DevActions.UnregisterCallbacks(IDevActions)" />
-        public void SetCallbacks(IDevActions instance)
+        /// <seealso cref="IntroActions.AddCallbacks(IIntroActions)" />
+        /// <seealso cref="IntroActions.RemoveCallbacks(IIntroActions)" />
+        /// <seealso cref="IntroActions.UnregisterCallbacks(IIntroActions)" />
+        public void SetCallbacks(IIntroActions instance)
         {
-            foreach (var item in m_Wrapper.m_DevActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_IntroActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_DevActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_IntroActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="DevActions" /> instance referencing this action map.
+    /// Provides a new <see cref="IntroActions" /> instance referencing this action map.
     /// </summary>
-    public DevActions @dev => new DevActions(this);
+    public IntroActions @Intro => new IntroActions(this);
 
     // UI
     private readonly InputActionMap m_UI;
@@ -1200,19 +1156,19 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "dev" which allows adding and removing callbacks.
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Intro" which allows adding and removing callbacks.
     /// </summary>
-    /// <seealso cref="DevActions.AddCallbacks(IDevActions)" />
-    /// <seealso cref="DevActions.RemoveCallbacks(IDevActions)" />
-    public interface IDevActions
+    /// <seealso cref="IntroActions.AddCallbacks(IIntroActions)" />
+    /// <seealso cref="IntroActions.RemoveCallbacks(IIntroActions)" />
+    public interface IIntroActions
     {
         /// <summary>
-        /// Method invoked when associated input action "move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "intro" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMove(InputAction.CallbackContext context);
+        void OnIntro(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
