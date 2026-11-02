@@ -215,10 +215,10 @@ public class Networker : MonoBehaviour {
     }
 
     void _steamJoinLobby(Lobby lobby, SteamId id) {
-        _joinLobby(lobby, id);
+        _joinLobby(lobby);
     }
 
-    async void _joinLobby(Lobby lobby, SteamId id) {
+    async void _joinLobby(Lobby lobby) {
         RoomEnter status = await lobby.Join();
 
         if (status != RoomEnter.Success) {
@@ -227,7 +227,7 @@ public class Networker : MonoBehaviour {
         }
 
         this.lobby = lobby;
-        Debug.Log($"Successfully Joined Lobby: {id}");
+        Debug.Log($"Successfully Joined {lobby.Owner.Id}'s lobby");
     }
 
     void _steamLobbyEntered(Lobby lobby) {
@@ -246,8 +246,10 @@ public class Networker : MonoBehaviour {
     void _steamLobbyMemberLeave(Lobby lobby, Friend friend)
         => Debug.Log("Member leave");
 
-    void _steamLobbyInvite(Friend friend, Lobby lobby)
-        => Debug.Log($"Invite from {friend.Name}");
+    void _steamLobbyInvite(Friend friend, Lobby lobby) {
+        Debug.Log($"Invite from {friend.Name}");
+        _joinLobby(lobby);
+    }
 
     void _steamLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId id)
         => Debug.Log("Lobby was created");
