@@ -170,32 +170,14 @@ public class Networker : MonoBehaviour {
         onFriendUpdate?.Invoke();
     }
 
-    public List<Friend> getLobbyFriends() => lobby.HasValue
-        ? lobby.Value.Members.ToList()
-        : null
-    ;
-
-    public List<Friend> getOutsideFriends() {
-        List<Friend> lobbyFs = getLobbyFriends();
-        IEnumerable<Friend> allFs = SteamFriends.GetFriends();
-
-        if (lobbyFs == null) return allFs.ToList();
-
-        HashSet<Friend> sort = allFs.ToHashSet();
-
-        foreach (Friend f in getLobbyFriends()) {
-            if (!sort.Contains(f)) continue;
-            sort.Remove(f);
-        }
-
-        return sort.ToList();
-    }
-
     async void _startHost() {
         if (!_man.StartHost()) return;
         lobby = await SteamMatchmaking.CreateLobbyAsync();
         Debug.Log("Host Started");
     }
+
+    public void inviteFriend(Friend friend)
+        => lobby.Value.InviteFriend(friend.Id);
 
     public void leaveLobby() {
         Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");

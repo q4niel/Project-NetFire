@@ -820,8 +820,8 @@ MonoBehaviour:
   _offlineFriendsViewId: offline_friends_view
   _friendViewSpacing: 80
   _playerCard: {fileID: 9197481963319205126, guid: ab1396be32973c6328c3e04f5e4bfacd, type: 3}
-  _playerCardAvatarId: avatar
-  _playerCardNameId: name
+  _playerCardAvatarId: avatar_img
+  _playerCardNameInviteButtonId: name_invite_btn
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

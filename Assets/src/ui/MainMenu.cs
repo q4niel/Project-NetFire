@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,10 +21,12 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] float _friendViewSpacing;
     [SerializeField] VisualTreeAsset _playerCard;
     [SerializeField] string _playerCardAvatarId;
-    [SerializeField] string _playerCardNameId;
+    [SerializeField] string _playerCardNameInviteButtonId;
 
     PanelRenderer _rend = null;
     VisualElement _root = null;
+    Button _selectedNameInviteBtn = null;
+    string _selectedNameInviteBtnName = null;
 
     void Awake()
         => _rend = GetComponent<PanelRenderer>();
@@ -53,6 +56,7 @@ public class MainMenu : MonoBehaviour {
         _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
         Networker.onFriendUpdate -= _reloadFriendsUI;
+        _selectedNameInviteBtn = null;
     });
 
     void _reloadFriendsUI() {
@@ -70,11 +74,14 @@ public class MainMenu : MonoBehaviour {
             view.bindItem = (element, index) => {
                 if (index > friends.Count()) return;
 
-                element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId).image = Networker.instance.getFriendTexture (
+                element.Q<Image>(_playerCardAvatarId).image = Networker.instance.getFriendTexture (
                     friends[index]
                 );
 
-                element.Q<Label>(_playerCardNameId).text = friends[index].Name;
+
+                Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
+                btn.text = friends[index].Name;
+                btn.clicked += () => { _onNameInviteBtn(btn, friends[index]); };
             };
 
             view.itemsSource = friends;
@@ -99,5 +106,21 @@ public class MainMenu : MonoBehaviour {
         #endif
 
         Application.Quit();
+    }
+
+    void _onNameInviteBtn(Button self, Friend friend) {
+        if (_selectedNameInviteBtn == self) {
+            _selectedNameInviteBtn = null;
+            self.text = _selectedNameInviteBtnName;
+            Networker.instance.inviteFriend(friend);
+            return;
+        }
+        else if (_selectedNameInviteBtn != null) {
+            _selectedNameInviteBtn.text = _selectedNameInviteBtnName;
+        }
+
+        _selectedNameInviteBtn = self;
+        _selectedNameInviteBtnName = self.text;
+        self.text = $"Invite";
     }
 }
