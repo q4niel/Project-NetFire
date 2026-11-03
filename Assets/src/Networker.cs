@@ -77,11 +77,9 @@ public class Networker : MonoBehaviour {
         InputManager.instance().actions.Intro.intro.performed += _introSequence;
     }
 
-    void OnDisable() {
-        leaveLobby();
-    }
-
     void OnDestroy() {
+        leaveLobby();
+
         SteamMatchmaking.OnLobbyCreated -= _steamLobbyCreated;
         SteamFriends.OnGameLobbyJoinRequested -= _steamJoinLobby;
         SteamMatchmaking.OnLobbyEntered -= _steamLobbyEntered;
@@ -181,8 +179,8 @@ public class Networker : MonoBehaviour {
 
     public void leaveLobby() {
         Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");
-        // lobby?.Leave();
-        // lobby = null;
+        lobby?.Leave();
+        lobby = null;
         _man?.Shutdown(true);
     }
 
@@ -219,7 +217,6 @@ public class Networker : MonoBehaviour {
     }
 
     async void _joinLobby(Lobby lobby) {
-        leaveLobby();
         RoomEnter status = await lobby.Join();
 
         if (status != RoomEnter.Success) {
@@ -237,7 +234,10 @@ public class Networker : MonoBehaviour {
         if (_man.IsHost) return;
 
         _trans.targetSteamId = this.lobby.Value.Owner.Id;
-        if (!_man.StartClient()) return;
+        if (!_man.StartClient()) {
+            Debug.Log("Failed to Start Client");
+            return;
+        }
         Debug.Log("Client Started");
     }
 

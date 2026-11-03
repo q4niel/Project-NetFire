@@ -101,6 +101,7 @@ public class MainMenu : MonoBehaviour {
 
     void _onExitBtn() {
         #if UNITY_EDITOR
+            Networker.instance.leaveLobby();
             UnityEditor.EditorApplication.isPlaying = false;
             return;
         #endif
