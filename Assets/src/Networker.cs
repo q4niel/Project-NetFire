@@ -213,12 +213,10 @@ public class Networker : MonoBehaviour {
     }
 
     void _steamJoinLobby(Lobby lobby, SteamId id) {
-        Debug.Log("_steamJoinLobby");
         _joinLobby(lobby);
     }
 
     async void _joinLobby(Lobby lobby) {
-        Debug.Log("_joinLobby");
         leaveLobby();
         RoomEnter status = await lobby.Join();
 
@@ -233,8 +231,9 @@ public class Networker : MonoBehaviour {
 
     void _steamLobbyEntered(Lobby lobby) {
         _updateFriends();
-
+        Debug.Log("before");
         if (_man.IsHost) return;
+        Debug.Log("after");
 
         _trans.targetSteamId = this.lobby.Value.Owner.Id;
         if (!_man.StartClient()) {
