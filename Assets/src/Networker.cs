@@ -213,10 +213,12 @@ public class Networker : MonoBehaviour {
     }
 
     void _steamJoinLobby(Lobby lobby, SteamId id) {
+        Debug.Log("_steamJoinLobby");
         _joinLobby(lobby);
     }
 
     async void _joinLobby(Lobby lobby) {
+        Debug.Log("_joinLobby");
         leaveLobby();
         RoomEnter status = await lobby.Join();
 
