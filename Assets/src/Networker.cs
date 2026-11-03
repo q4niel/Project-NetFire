@@ -217,6 +217,7 @@ public class Networker : MonoBehaviour {
     }
 
     async void _joinLobby(Lobby lobby) {
+        leaveLobby();
         RoomEnter status = await lobby.Join();
 
         if (status != RoomEnter.Success) {
