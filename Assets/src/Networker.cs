@@ -47,7 +47,6 @@ public class Networker : MonoBehaviour {
         private set;
     } = SteamClient.IsValid;
 
-    NetworkManager _man = null;
     FacepunchTransport _trans = null;
 
     LobbyType lobbyType = LobbyType.Private;
@@ -60,7 +59,6 @@ public class Networker : MonoBehaviour {
     }
 
     void Start() {
-        _man = NetworkManager.Singleton;
         _trans = GetComponent<FacepunchTransport>();
 
         SteamMatchmaking.OnLobbyCreated += _steamLobbyCreated;
@@ -169,7 +167,7 @@ public class Networker : MonoBehaviour {
     }
 
     async void _startHost() {
-        if (!_man.StartHost()) return;
+        if (!NetworkManager.Singleton.StartHost()) return;
         lobby = await SteamMatchmaking.CreateLobbyAsync();
         Debug.Log("Host Started");
     }
@@ -181,7 +179,7 @@ public class Networker : MonoBehaviour {
         Debug.Log(lobby == null ? "Not In a Lobby to Begin With" : "Left a Lobby");
         lobby?.Leave();
         lobby = null;
-        _man?.Shutdown(true);
+        NetworkManager.Singleton.Shutdown(true);
     }
 
     void _steamLobbyCreated(Result result, Lobby lobby) {
@@ -231,12 +229,10 @@ public class Networker : MonoBehaviour {
 
     void _steamLobbyEntered(Lobby lobby) {
         _updateFriends();
-        Debug.Log("before");
-        if (_man.IsHost) return;
-        Debug.Log("after");
+        if (NetworkManager.Singleton.IsHost) return;
 
         _trans.targetSteamId = this.lobby.Value.Owner.Id;
-        if (!_man.StartClient()) {
+        if (!NetworkManager.Singleton.StartClient()) {
             Debug.Log("Failed to Start Client");
             return;
         }
