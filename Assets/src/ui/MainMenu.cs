@@ -49,14 +49,28 @@ public class MainMenu : MonoBehaviour {
 
     void OnEnable() {
         _rend.RegisterUIReloadCallback(_reg);
-        Steamer.onFriendsUpdate += _reloadFriendsUI;
-        Steamer.onLobbyInvite += _addFriendInvite;
+        System.Collections.IEnumerator foo() {
+            while (_root == null) yield return null;
+            _root.Q<Button>(_armouryBtnId).clicked += _btnUnImpl;
+            _root.Q<Button>(_systemBtnId).clicked += _btnUnImpl;
+            _root.Q<Button>(_creditsBtnId).clicked += _btnUnImpl;
+            _root.Q<Button>(_extrasBtnId).clicked += _btnUnImpl;
+            _root.Q<Button>(_exitBtnId).clicked += _onExitBtn;
+            Steamer.onFriendsUpdate += _reloadFriendsUI;
+            Steamer.onLobbyInvite += _addFriendInvite;
+        }
+        StartCoroutine(foo());
     }
 
     void OnDisable() {
-        _rend.UnregisterUIReloadCallback(_unreg);
+        _root.Q<Button>(_armouryBtnId).clicked -= _btnUnImpl;
+        _root.Q<Button>(_systemBtnId).clicked -= _btnUnImpl;
+        _root.Q<Button>(_creditsBtnId).clicked -= _btnUnImpl;
+        _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
+        _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
         Steamer.onFriendsUpdate -= _reloadFriendsUI;
         Steamer.onLobbyInvite -= _addFriendInvite;
+        _rend.UnregisterUIReloadCallback(_unreg);
     }
 
     void _reg (
@@ -65,11 +79,6 @@ public class MainMenu : MonoBehaviour {
         int version
     ) {
         _root = root;
-        _root.Q<Button>(_armouryBtnId).clicked += _btnUnImpl;
-        _root.Q<Button>(_systemBtnId).clicked += _btnUnImpl;
-        _root.Q<Button>(_creditsBtnId).clicked += _btnUnImpl;
-        _root.Q<Button>(_extrasBtnId).clicked += _btnUnImpl;
-        _root.Q<Button>(_exitBtnId).clicked += _onExitBtn;
         _reloadFriendsUI();
         _reloadFriendInvitesUI();
     }
@@ -79,13 +88,9 @@ public class MainMenu : MonoBehaviour {
         VisualElement root,
         int version
     ) {
-        _root.Q<Button>(_armouryBtnId).clicked -= _btnUnImpl;
-        _root.Q<Button>(_systemBtnId).clicked -= _btnUnImpl;
-        _root.Q<Button>(_creditsBtnId).clicked -= _btnUnImpl;
-        _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
-        _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
         _reloadFriendsUI();
         _reloadFriendInvitesUI();
+        _root = null;
     }
 
     void _reloadFriendsUI() {
