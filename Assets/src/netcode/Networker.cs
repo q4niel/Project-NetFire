@@ -2,8 +2,12 @@ using Netcode.Transports.Facepunch;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Networker2 : MonoBehaviour {
-    public static Networker2 instance {
+public class Networker : MonoBehaviour {
+#if UNITY_EDITOR
+    [SerializeField] public bool forceJoinOnSteamInvite = false;
+#endif
+
+    public static Networker instance {
         get;
         private set;
     } = null;

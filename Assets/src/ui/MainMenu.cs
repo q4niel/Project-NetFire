@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -25,39 +25,46 @@ public class MainMenu : MonoBehaviour {
 
     PanelRenderer _rend = null;
     VisualElement _root = null;
+
     Button _selectedNameInviteBtn = null;
-    string _selectedNameInviteBtnName = null;
+    string _selectedNameInviteBtnText = null;
 
-    void Awake()
-        => _rend = GetComponent<PanelRenderer>();
+    void Awake() {
+        _rend = GetComponent<PanelRenderer>();
+        Networker.instance.startHost();
+    }
 
-    void OnEnable() => _rend.RegisterUIReloadCallback ((
+    void OnEnable() => _rend.RegisterUIReloadCallback(_reg);
+    void OnDisable() => _rend.UnregisterUIReloadCallback(_unreg);
+
+    void _reg (
         PanelRenderer rend,
         VisualElement root,
         int version
-    ) => {
+    ) {
         _root = root;
         _root.Q<Button>(_armouryBtnId).clicked += _btnUnImpl;
         _root.Q<Button>(_systemBtnId).clicked += _btnUnImpl;
         _root.Q<Button>(_creditsBtnId).clicked += _btnUnImpl;
         _root.Q<Button>(_extrasBtnId).clicked += _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked += _onExitBtn;
-        Networker.onFriendUpdate += _reloadFriendsUI;
-    });
+        _reloadFriendsUI();
+        Steamer.onFriendsUpdate += _reloadFriendsUI;
+    }
 
-    void OnDisable() => _rend.UnregisterUIReloadCallback ((
+    void _unreg (
         PanelRenderer rend,
         VisualElement root,
         int version
-    ) => {
+    ) {
         _root.Q<Button>(_armouryBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_systemBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_creditsBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
-        Networker.onFriendUpdate -= _reloadFriendsUI;
-        _selectedNameInviteBtn = null;
-    });
+        _reloadFriendsUI();
+        Steamer.onFriendsUpdate -= _reloadFriendsUI;
+    }
 
     void _reloadFriendsUI() {
         void populateView (
@@ -72,16 +79,27 @@ public class MainMenu : MonoBehaviour {
             };
 
             view.bindItem = (element, index) => {
-                if (index > friends.Count()) return;
+                if (index >= friends.Count()) return;
+                Friend f = friends[index];
 
-                element.Q<Image>(_playerCardAvatarId).image = Networker.instance.getFriendTexture (
-                    friends[index]
-                );
-
+                Image img = element.Q<Image>(_playerCardAvatarId);
+                img.image = Steamer.getFriendTexture(f);
 
                 Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
-                btn.text = friends[index].Name;
-                btn.clicked += () => { _onNameInviteBtn(btn, friends[index]); };
+                btn.text = f.Name;
+                Action callback = () => { _onNameInviteBtn(btn, f); };
+                btn.userData = callback;
+                btn.clicked += callback.Invoke;
+            };
+
+            view.unbindItem = (element, index) => {
+                if (index >= friends.Count()) return;
+
+                Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
+                if (btn.userData is Action callback) {
+                    btn.clicked -= callback.Invoke;
+                    callback = null;
+                }
             };
 
             view.itemsSource = friends;
@@ -89,7 +107,7 @@ public class MainMenu : MonoBehaviour {
             view.Rebuild();
         }
 
-        Networker.SteamFriendCollection friendColl = Networker.instance.steamFriends;
+        Steamer.SteamFriendCollection friendColl = Steamer.steamFriends;
 
         populateView(_inGameFriendsViewId, friendColl.inGame);
         populateView(_onlineFriendsViewId, friendColl.online);
@@ -101,27 +119,28 @@ public class MainMenu : MonoBehaviour {
 
     void _onExitBtn() {
         #if UNITY_EDITOR
-            Networker.instance.leaveLobby();
             UnityEditor.EditorApplication.isPlaying = false;
             return;
         #endif
 
+#pragma warning disable CS0162
         Application.Quit();
     }
 
-    void _onNameInviteBtn(Button self, Friend friend) {
-        if (_selectedNameInviteBtn == self) {
+    void _onNameInviteBtn(Button btn, Friend friend) {
+        if (_selectedNameInviteBtn == btn) {
             _selectedNameInviteBtn = null;
-            self.text = _selectedNameInviteBtnName;
-            Networker.instance.inviteFriend(friend);
+            btn.text = friend.Name;
+            Steamer.inviteFriend(friend);
             return;
         }
-        else if (_selectedNameInviteBtn != null) {
-            _selectedNameInviteBtn.text = _selectedNameInviteBtnName;
+
+        if (_selectedNameInviteBtn != null) {
+            _selectedNameInviteBtn.text = _selectedNameInviteBtnText;
         }
 
-        _selectedNameInviteBtn = self;
-        _selectedNameInviteBtnName = self.text;
-        self.text = $"Invite";
+        _selectedNameInviteBtn = btn;
+        _selectedNameInviteBtnText = btn.text;
+        btn.text = $"Invite";
     }
 }
