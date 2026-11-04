@@ -30,6 +30,7 @@ static class Steamer {
     } = new SteamFriendCollection();
 
     public static event Action onFriendsUpdate;
+    public static event Action onLobbyInvite;
 
     static Networker _networker = null;
     static Dictionary<string, Tuple<SteamFriendCollection.StatusType, int>> _name2Friend = null;
@@ -193,6 +194,7 @@ static class Steamer {
 
     static void _onLobbyInvite(Friend friend, Lobby lobby) {
         Debug.Log($"{friend.Name} Invited to the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+        onLobbyInvite?.Invoke();
 #if UNITY_EDITOR
         if (!Networker.instance.forceJoinInvites) return;
         joinLobby(lobby);

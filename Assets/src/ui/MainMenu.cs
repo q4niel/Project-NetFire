@@ -7,11 +7,15 @@ using UnityEngine.UIElements;
 
 public class MainMenu : MonoBehaviour {
     [Header("Left Hand Side")]
+    [SerializeField] string _inLobbyFriendsViewId;
     [SerializeField] string _armouryBtnId;
     [SerializeField] string _systemBtnId;
     [SerializeField] string _creditsBtnId;
     [SerializeField] string _extrasBtnId;
     [SerializeField] string _exitBtnId;
+
+    [Header("Right in the Middle")]
+    [SerializeField] string _friendInvitesViewId;
 
     [Header("Right Hand Side")]
     [SerializeField] string _inGameFriendsViewId;
@@ -29,11 +33,7 @@ public class MainMenu : MonoBehaviour {
     Button _selectedNameInviteBtn = null;
     string _selectedNameInviteBtnText = null;
 
-    void Awake() {
-        _rend = GetComponent<PanelRenderer>();
-        // Networker.instance.startHost();
-    }
-
+    void Awake() => _rend = GetComponent<PanelRenderer>();
     void OnEnable() => _rend.RegisterUIReloadCallback(_reg);
     void OnDisable() => _rend.UnregisterUIReloadCallback(_unreg);
 
@@ -109,6 +109,7 @@ public class MainMenu : MonoBehaviour {
 
         Steamer.SteamFriendCollection friendColl = Steamer.steamFriends;
 
+        populateView(_inLobbyFriendsViewId, friendColl.inLobby);
         populateView(_inGameFriendsViewId, friendColl.inGame);
         populateView(_onlineFriendsViewId, friendColl.online);
         populateView(_offlineFriendsViewId, friendColl.offline);

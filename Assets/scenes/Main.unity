@@ -222,6 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 968832ea437240fbe9c5d5a02b03a5a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networker2
+  forceJoinInvites: 0
 --- !u!1 &299823358
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,11 +822,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2463d563d9f372eb69c7afc3a138eacc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
+  _inLobbyFriendsViewId: in_lobby_friends_view
   _armouryBtnId: armoury_btn
   _systemBtnId: system_btn
   _creditsBtnId: credits_btn
   _extrasBtnId: extras_btn
   _exitBtnId: exit_btn
+  _friendInvitesViewId: friend_invites_view
   _inGameFriendsViewId: in_game_friends_view
   _onlineFriendsViewId: online_friends_view
   _offlineFriendsViewId: offline_friends_view
