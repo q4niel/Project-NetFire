@@ -31,7 +31,7 @@ public class MainMenu : MonoBehaviour {
 
     void Awake() {
         _rend = GetComponent<PanelRenderer>();
-        Networker.instance.startHost();
+        // Networker.instance.startHost();
     }
 
     void OnEnable() => _rend.RegisterUIReloadCallback(_reg);
