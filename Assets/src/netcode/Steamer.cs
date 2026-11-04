@@ -5,6 +5,7 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 static class Steamer {
     public static Lobby? lobby {
@@ -83,6 +84,7 @@ static class Steamer {
         }
 
         Steamer.lobby = lobby;
+        await Task.Delay(1000);
         Debug.Log($"Successfully Joined Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
         _networker.startClient(lobby.Owner.Id);
     }
@@ -195,7 +197,7 @@ static class Steamer {
     static void _onLobbyEntered(Lobby lobby) {
         if (isInvalid() || NetworkManager.Singleton.IsHost) return;
 
-        Steamer.lobby = lobby;
+        // Steamer.lobby = lobby;
         // _networker.startClient(lobby.Owner.Id);
     }
 
