@@ -238,8 +238,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     void _joinFriendInvite(ValueTuple<Friend, Lobby> fl) {
-        Debug.Log($"Should join {fl.Item1.Name} in lobby {fl.Item2.Id}");
-        _btnUnImpl();
+        Steamer.joinLobby(fl.Item2);
         _removeFriendInvite(fl.Item1.Id);
     }
 }
