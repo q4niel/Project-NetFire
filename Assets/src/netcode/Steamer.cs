@@ -84,6 +84,7 @@ static class Steamer {
 
         Steamer.lobby = lobby;
         Debug.Log($"Successfully Joined Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+        _networker.startClient(lobby.Owner.Id);
     }
 
     public static void inviteFriend(Friend friend) {
@@ -195,7 +196,7 @@ static class Steamer {
         if (isInvalid() || NetworkManager.Singleton.IsHost) return;
 
         Steamer.lobby = lobby;
-        _networker.startClient(lobby.Owner.Id);
+        // _networker.startClient(lobby.Owner.Id);
     }
 
     static void _onLobbyMemberJoined(Lobby lobby, Friend friend) {
