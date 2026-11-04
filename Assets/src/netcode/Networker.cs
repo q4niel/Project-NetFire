@@ -1,10 +1,11 @@
+using System.Collections;
 using Netcode.Transports.Facepunch;
 using Unity.Netcode;
 using UnityEngine;
 
 public class Networker : MonoBehaviour {
 #if UNITY_EDITOR
-    [SerializeField] public bool forceJoinOnSteamInvite = false;
+    [SerializeField] public bool forceJoinInvites = false;
 #endif
 
     public static Networker instance {
@@ -22,11 +23,7 @@ public class Networker : MonoBehaviour {
     }
 
     void OnDestroy() => instance = null;
-
-    void OnEnable() {
-        Steamer.init(instance);
-    }
-
+    void OnEnable() => Steamer.init(instance);
     void Start() => _trans = GetComponent<FacepunchTransport>();
 
     void OnDisable() {
@@ -39,32 +36,57 @@ public class Networker : MonoBehaviour {
     }
 
     public void startHost() {
-        NetworkManager.Singleton.OnServerStarted += _onServerStarted;
-        NetworkManager.Singleton.StartHost();
-        Steamer.createLobby();
+        IEnumerator foo() {
+            disconnect();
+
+            while (
+                NetworkManager.Singleton != null
+            &&  NetworkManager.Singleton.ShutdownInProgress
+            ) yield return null;
+
+            NetworkManager.Singleton.OnServerStarted += _onServerStarted;
+            NetworkManager.Singleton.StartHost();
+        }
+        StartCoroutine(foo());
     }
 
     public void startClient(ulong steamId) {
-        _trans.targetSteamId = steamId;
-        NetworkManager.Singleton.OnClientConnectedCallback += _onClientConnect;
-        NetworkManager.Singleton.OnClientDisconnectCallback += _onClientDisconnect;
-        NetworkManager.Singleton.StartClient();
+        IEnumerator foo() {
+            disconnect();
+
+            while (
+                NetworkManager.Singleton != null
+            &&  NetworkManager.Singleton.ShutdownInProgress
+            ) yield return null;
+
+            NetworkManager.Singleton.OnClientConnectedCallback += _onClientConnect;
+            NetworkManager.Singleton.OnClientDisconnectCallback += _onClientDisconnect;
+            _trans.targetSteamId = steamId;
+            NetworkManager.Singleton.StartClient();
+        }
+        StartCoroutine(foo());
     }
 
     public void disconnect() {
         Steamer.leaveLobby();
-
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
+
+        NetworkManager.Singleton.Shutdown(true);
+        Debug.Log("Networker Disconnect");
 
         NetworkManager.Singleton.OnServerStarted -= _onServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback -= _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback -= _onClientDisconnect;
-
-        NetworkManager.Singleton.Shutdown(true);
-        Debug.Log("Networker Disconnect");
     }
 
-    void _onServerStarted() => Debug.Log("Networker Host Started");
-    void _onClientConnect(ulong clientId) => Debug.Log("Networker Client Connect");
+    void _onServerStarted() {
+        Debug.Log("Networker Host Started");
+        Steamer.createLobby();
+    }
+
+    void _onClientConnect(ulong clientId) {
+        Debug.Log("Networker Client Connect");
+    }
+
     void _onClientDisconnect(ulong clientId) => Debug.Log("Networker Client Disconnect");
 }

@@ -1,7 +1,6 @@
 using UnityEngine;
 using Steamworks;
 using Steamworks.Data;
-using Unity.Netcode;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -59,22 +58,11 @@ static class Steamer {
         SteamFriends.OnGameLobbyJoinRequested -= _onGameLobbyJoinRequested;
     }
 
-    public static bool isInvalid() {
-        if (_networker != null) return false;
-        Debug.LogWarning("Steamer is Invalid");
-        return true;
-    }
-
     public static async void createLobby() {
-        if (isInvalid()) return;
         lobby = await SteamMatchmaking.CreateLobbyAsync();
     }
 
     public static async void joinLobby(Lobby lobby) {
-        if (isInvalid()) return;
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient)
-            _networker.disconnect();
-
         RoomEnter joining = await lobby.Join();
 
         if (joining != RoomEnter.Success) {
@@ -84,10 +72,10 @@ static class Steamer {
 
         Steamer.lobby = lobby;
         Debug.Log($"Successfully Joined Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+        _networker.startClient(lobby.Owner.Id);
     }
 
     public static void inviteFriend(Friend friend) {
-        if (isInvalid()) return;
         lobby.Value.InviteFriend(friend.Id);
     }
 
@@ -177,8 +165,6 @@ static class Steamer {
     }
 
     static void _onLobbyCreated(Result result, Lobby lobby) {
-        if (isInvalid()) return;
-
         if (result != Result.OK) {
             Debug.LogWarning("Failed to Create Steam Lobby");
             return;
@@ -192,46 +178,37 @@ static class Steamer {
     }
 
     static void _onLobbyEntered(Lobby lobby) {
-        if (isInvalid() || NetworkManager.Singleton.IsHost) return;
-
-        Steamer.lobby = lobby;
-        _networker.startClient(lobby.Owner.Id);
+        Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
     }
 
     static void _onLobbyMemberJoined(Lobby lobby, Friend friend) {
-        if (isInvalid()) return;
         _updateFriends();
         Debug.Log($"'{friend.Name}' Joined the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
     }
 
     static void _onLobbyMemberLeave(Lobby lobby, Friend friend) {
-        if (isInvalid()) return;
         _updateFriends();
         Debug.Log($"{friend.Name} Left the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
     }
 
     static void _onLobbyInvite(Friend friend, Lobby lobby) {
-        if (isInvalid()) return;
         Debug.Log($"{friend.Name} Invited to the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
 #if UNITY_EDITOR
-        if (Networker.instance.forceJoinOnSteamInvite)
-            joinLobby(lobby);
+        if (!Networker.instance.forceJoinInvites) return;
+        joinLobby(lobby);
 #endif
     }
 
     static void _onLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId steamId) {
-        if (isInvalid()) return;
         Debug.Log($"Steam Lobby Game Created\n  Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}\n  IP: {ip}\n  Port: {port}\n  SteamID: {steamId}");
     }
 
     static void _onLobbyMemberDisconnected(Lobby lobby, Friend friend) {
-        if (isInvalid()) return;
         _updateFriends();
         Debug.Log($"{friend.Name} Disconnected from Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
     }
 
     static void _onGameLobbyJoinRequested(Lobby lobby, SteamId steamId) {
-        if (isInvalid()) return;
         Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
     }
 

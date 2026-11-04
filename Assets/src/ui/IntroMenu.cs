@@ -15,6 +15,7 @@ public class IntroMenu : MonoBehaviour {
     }
 
     void _intro(InputAction.CallbackContext cntxt) {
+        Networker.instance.startHost();
         _mainMenu.SetActive(true);
         Destroy(gameObject);
     }
