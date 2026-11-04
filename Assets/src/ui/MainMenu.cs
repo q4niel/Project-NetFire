@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Steamworks;
+using Steamworks.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,6 +17,12 @@ public class MainMenu : MonoBehaviour {
 
     [Header("Right in the Middle")]
     [SerializeField] string _friendInvitesViewId;
+    [SerializeField] float _friendInvitesViewSpacing;
+    [SerializeField] VisualTreeAsset _playerInviteCard;
+    [SerializeField] string _playerInviteCardAvatarId;
+    [SerializeField] string _playerInviteCardNameLabelId;
+    [SerializeField] string _playerInviteCardIgnoreBtnId;
+    [SerializeField] string _playerInviteCardJoinBtnId;
 
     [Header("Right Hand Side")]
     [SerializeField] string _inGameFriendsViewId;
@@ -33,9 +40,24 @@ public class MainMenu : MonoBehaviour {
     Button _selectedNameInviteBtn = null;
     string _selectedNameInviteBtnText = null;
 
-    void Awake() => _rend = GetComponent<PanelRenderer>();
-    void OnEnable() => _rend.RegisterUIReloadCallback(_reg);
-    void OnDisable() => _rend.UnregisterUIReloadCallback(_unreg);
+    Dictionary<SteamId, ValueTuple<Friend, Lobby>> _friendInvites;
+
+    void Awake() {
+        _rend = GetComponent<PanelRenderer>();
+        _friendInvites = new Dictionary<SteamId, ValueTuple<Friend, Lobby>>();
+    }
+
+    void OnEnable() {
+        _rend.RegisterUIReloadCallback(_reg);
+        Steamer.onFriendsUpdate += _reloadFriendsUI;
+        Steamer.onLobbyInvite += _addFriendInvite;
+    }
+
+    void OnDisable() {
+        _rend.UnregisterUIReloadCallback(_unreg);
+        Steamer.onFriendsUpdate -= _reloadFriendsUI;
+        Steamer.onLobbyInvite -= _addFriendInvite;
+    }
 
     void _reg (
         PanelRenderer rend,
@@ -49,7 +71,7 @@ public class MainMenu : MonoBehaviour {
         _root.Q<Button>(_extrasBtnId).clicked += _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked += _onExitBtn;
         _reloadFriendsUI();
-        Steamer.onFriendsUpdate += _reloadFriendsUI;
+        _reloadFriendInvitesUI();
     }
 
     void _unreg (
@@ -63,7 +85,7 @@ public class MainMenu : MonoBehaviour {
         _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
         _reloadFriendsUI();
-        Steamer.onFriendsUpdate -= _reloadFriendsUI;
+        _reloadFriendInvitesUI();
     }
 
     void _reloadFriendsUI() {
@@ -82,7 +104,7 @@ public class MainMenu : MonoBehaviour {
                 if (index >= friends.Count()) return;
                 Friend f = friends[index];
 
-                Image img = element.Q<Image>(_playerCardAvatarId);
+                UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
                 img.image = Steamer.getFriendTexture(f);
 
                 Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
@@ -115,6 +137,57 @@ public class MainMenu : MonoBehaviour {
         populateView(_offlineFriendsViewId, friendColl.offline);
     }
 
+    void _reloadFriendInvitesUI() {
+        ListView view = _root.Q<ListView>(_friendInvitesViewId);
+        if (view == null) return;
+
+        view.makeItem = () => {
+            return _playerInviteCard.Instantiate();
+        };
+
+        view.bindItem = (element, index) => {
+            if (index >= _friendInvites.Count()) return;
+            ValueTuple<Friend, Lobby> fl = _friendInvites.Values.ElementAt(index);
+            SteamId id = fl.Item1.Id;
+
+            UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
+            img.image = Steamer.getFriendTexture(fl.Item1);
+
+            Label label = element.Q<Label>(_playerInviteCardNameLabelId);
+            label.text = fl.Item1.Name;
+
+            Button ignoreBtn = element.Q<Button>(_playerInviteCardIgnoreBtnId);
+            Action ignoreCallback = () => { _removeFriendInvite(id); };
+            ignoreBtn.userData = ignoreCallback;
+            ignoreBtn.clicked += ignoreCallback.Invoke;
+
+            Button joinBtn = element.Q<Button>(_playerInviteCardJoinBtnId);
+            Action joinCallback = () => { _joinFriendInvite(fl); };
+            joinBtn.userData = joinCallback;
+            joinBtn.clicked += joinCallback.Invoke;
+        };
+
+        view.unbindItem = (element, index) => {
+            if (index >= _friendInvites.Count()) return;
+
+            Button ignoreBtn = element.Q<Button>(_playerInviteCardIgnoreBtnId);
+            if (ignoreBtn.userData is Action ignoreCallback) {
+                ignoreBtn.clicked -= ignoreCallback.Invoke;
+                ignoreCallback = null;
+            }
+
+            Button joinBtn = element.Q<Button>(_playerInviteCardJoinBtnId);
+            if (joinBtn.userData is Action joinCallback) {
+                joinBtn.clicked -= joinCallback.Invoke;
+                joinCallback = null;
+            }
+        };
+
+        view.itemsSource = _friendInvites.Values.ToList();
+        view.fixedItemHeight = _friendInvitesViewSpacing;
+        view.Rebuild();
+    }
+
     void _btnUnImpl()
         => Debug.LogWarning($"Button has not been implemented");
 
@@ -143,5 +216,25 @@ public class MainMenu : MonoBehaviour {
         _selectedNameInviteBtn = btn;
         _selectedNameInviteBtnText = btn.text;
         btn.text = $"Invite";
+    }
+
+    void _addFriendInvite(Friend friend, Lobby lobby) {
+        if (_friendInvites.TryGetValue(friend.Id, out ValueTuple<Friend, Lobby> stored))
+            stored.Item2 = lobby;
+        else
+            _friendInvites.Add(friend.Id, new ValueTuple<Friend, Lobby>(friend, lobby));
+        _reloadFriendInvitesUI();
+    }
+
+    void _removeFriendInvite(SteamId id) {
+        if (!_friendInvites.ContainsKey(id)) return;
+        _friendInvites.Remove(id);
+        _reloadFriendInvitesUI();
+    }
+
+    void _joinFriendInvite(ValueTuple<Friend, Lobby> fl) {
+        Debug.Log($"Should join {fl.Item1.Name} in lobby {fl.Item2.Id}");
+        _btnUnImpl();
+        _removeFriendInvite(fl.Item1.Id);
     }
 }

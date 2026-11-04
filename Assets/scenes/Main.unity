@@ -829,6 +829,12 @@ MonoBehaviour:
   _extrasBtnId: extras_btn
   _exitBtnId: exit_btn
   _friendInvitesViewId: friend_invites_view
+  _friendInvitesViewSpacing: 160
+  _playerInviteCard: {fileID: 9197481963319205126, guid: 0d7df262e2515a91e982d59a8aafe75c, type: 3}
+  _playerInviteCardAvatarId: avatar_img
+  _playerInviteCardNameLabelId: name_label
+  _playerInviteCardIgnoreBtnId: ignore_btn
+  _playerInviteCardJoinBtnId: join_btn
   _inGameFriendsViewId: in_game_friends_view
   _onlineFriendsViewId: online_friends_view
   _offlineFriendsViewId: offline_friends_view

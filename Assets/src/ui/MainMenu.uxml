@@ -1,5 +1,5 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:ListView name="friend_invites_view" style="top: 0%; right: auto; width: 20%; height: 25%; position: absolute; bottom: auto; left: 40%;"/>
+    <ui:ListView name="friend_invites_view" style="top: 0%; right: auto; width: 20%; height: 100%; position: absolute; bottom: auto; left: 40%;"/>
     <ui:Label text="In Lobby" name="in_lobby_friends_label" style="top: 0%; right: auto; font-size: 20px; -unity-text-align: middle-left; width: 10%; height: 5%; color: rgb(255, 255, 255); bottom: auto; position: absolute; left: 1%;"/>
     <ui:ListView name="in_lobby_friends_view" style="top: 5.5%; right: auto; width: 20%; height: 25%; position: absolute; bottom: auto; left: 1%;"/>
     <ui:Button text="Armoury" name="armoury_btn" style="left: 1%; width: 10%; height: 5%; top: 50%; bottom: auto; position: relative; font-size: 30px; -unity-font-style: bold;"/>

@@ -1,5 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Image name="avatar_img" style="height: 100%; width: auto; position: absolute; bottom: auto; right: auto; left: 0%; aspect-ratio: 1; background-color: rgb(255, 0, 250);">
+    <ui:Image name="avatar_img" style="height: 70%; width: auto; position: absolute; bottom: auto; right: auto; left: 0%; aspect-ratio: 1; background-color: rgb(255, 0, 250);">
         <ui:Label text="Name" name="name_label" style="font-size: 60px; -unity-text-align: middle-left; color: rgb(255, 255, 255); position: absolute; left: 110%; width: 300%; height: 100%;"/>
     </ui:Image>
+    <ui:Button text="Ignore" name="ignore_btn" style="position: absolute; width: 50%; height: 30%; font-size: 30px; left: 0%; bottom: 0%;"/>
+    <ui:Button text="Join Lobby" name="join_btn" style="position: absolute; width: 50%; height: 30%; font-size: 30px; left: auto; bottom: 0%; right: 0%;"/>
 </ui:UXML>
