@@ -195,10 +195,6 @@ static class Steamer {
     static void _onLobbyInvite(Friend friend, Lobby lobby) {
         Debug.Log($"{friend.Name} Invited to the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
         onLobbyInvite?.Invoke(friend, lobby);
-#if UNITY_EDITOR
-        if (!Networker.instance.forceJoinInvites) return;
-        joinLobby(lobby);
-#endif
     }
 
     static void _onLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId steamId) {

@@ -4,10 +4,6 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class Networker : MonoBehaviour {
-#if UNITY_EDITOR
-    [SerializeField] public bool forceJoinInvites = false;
-#endif
-
     public static Networker instance {
         get;
         private set;
@@ -67,7 +63,7 @@ public class Networker : MonoBehaviour {
         StartCoroutine(foo());
     }
 
-    public void disconnect() {
+    public void disconnect(bool queueStartHost = false) {
         Steamer.leaveLobby();
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
 
@@ -77,6 +73,9 @@ public class Networker : MonoBehaviour {
         NetworkManager.Singleton.OnServerStarted -= _onServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback -= _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback -= _onClientDisconnect;
+
+        if (!queueStartHost) return;
+        startHost();
     }
 
     void _onServerStarted() {
