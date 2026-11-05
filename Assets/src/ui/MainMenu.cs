@@ -56,8 +56,8 @@ public class MainMenu : MonoBehaviour {
             _root.Q<Button>(_creditsBtnId).clicked += _btnUnImpl;
             _root.Q<Button>(_extrasBtnId).clicked += _btnUnImpl;
             _root.Q<Button>(_exitBtnId).clicked += _onExitBtn;
-            Steamer.onFriendsUpdate += _reloadFriendsUI;
-            Steamer.onLobbyInvite += _addFriendInvite;
+            Networker.instance.onSteamFriendsUpdate += _reloadFriendsUI;
+            Networker.instance.onSteamLobbyInvite += _addFriendInvite;
         }
         StartCoroutine(foo());
     }
@@ -68,8 +68,8 @@ public class MainMenu : MonoBehaviour {
         _root.Q<Button>(_creditsBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_extrasBtnId).clicked -= _btnUnImpl;
         _root.Q<Button>(_exitBtnId).clicked -= _onExitBtn;
-        Steamer.onFriendsUpdate -= _reloadFriendsUI;
-        Steamer.onLobbyInvite -= _addFriendInvite;
+        Networker.instance.onSteamFriendsUpdate -= _reloadFriendsUI;
+        Networker.instance.onSteamLobbyInvite -= _addFriendInvite;
         _rend.UnregisterUIReloadCallback(_unreg);
     }
 
@@ -110,7 +110,7 @@ public class MainMenu : MonoBehaviour {
                 Friend f = friends[index];
 
                 UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
-                img.image = Steamer.getFriendTexture(f);
+                img.image = Networker.instance.getFriendTexture(f);
 
                 Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
                 btn.text = f.Name;
@@ -134,7 +134,7 @@ public class MainMenu : MonoBehaviour {
             view.Rebuild();
         }
 
-        Steamer.SteamFriendCollection friendColl = Steamer.steamFriends;
+        Networker.SteamFriendCollection friendColl = Networker.instance.steamFriends;
 
         populateView(_inLobbyFriendsViewId, friendColl.inLobby);
         populateView(_inGameFriendsViewId, friendColl.inGame);
@@ -156,7 +156,7 @@ public class MainMenu : MonoBehaviour {
             SteamId id = fl.Item1.Id;
 
             UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
-            img.image = Steamer.getFriendTexture(fl.Item1);
+            img.image = Networker.instance.getFriendTexture(fl.Item1);
 
             Label label = element.Q<Label>(_playerInviteCardNameLabelId);
             label.text = fl.Item1.Name;
@@ -210,7 +210,7 @@ public class MainMenu : MonoBehaviour {
         if (_selectedNameInviteBtn == btn) {
             _selectedNameInviteBtn = null;
             btn.text = friend.Name;
-            Steamer.inviteFriend(friend);
+            Networker.instance.inviteFriend(friend);
             return;
         }
 
@@ -238,7 +238,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     void _joinFriendInvite(ValueTuple<Friend, Lobby> fl) {
-        Networker.instance.startClient(fl.Item2);
+        Networker.instance.joinLobby(fl.Item2);
         _removeFriendInvite(fl.Item1.Id);
     }
 }
