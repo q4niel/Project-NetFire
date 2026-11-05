@@ -73,7 +73,6 @@ static class Steamer {
 
         Steamer.lobby = lobby;
         Debug.Log($"Successfully Joined Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-        _networker.startClient(lobby.Owner.Id);
     }
 
     public static void inviteFriend(Friend friend) {
@@ -202,7 +201,6 @@ static class Steamer {
     }
 
     static void _onLobbyMemberDisconnected(Lobby lobby, Friend friend) {
-        _updateFriends();
         Debug.Log($"{friend.Name} Disconnected from Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
     }
 

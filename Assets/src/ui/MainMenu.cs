@@ -238,7 +238,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     void _joinFriendInvite(ValueTuple<Friend, Lobby> fl) {
-        Steamer.joinLobby(fl.Item2);
+        Networker.instance.startClient(fl.Item2);
         _removeFriendInvite(fl.Item1.Id);
     }
 }

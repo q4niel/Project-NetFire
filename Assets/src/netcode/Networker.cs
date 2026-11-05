@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Linq;
 using Netcode.Transports.Facepunch;
+using Steamworks;
+using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,6 +24,13 @@ public class Networker : MonoBehaviour {
     void OnDestroy() => instance = null;
     void OnEnable() => Steamer.init(instance);
     void Start() => _trans = GetComponent<FacepunchTransport>();
+
+    void Update() {
+        if (Steamer.lobby == null) return;
+
+        foreach (Friend f in Steamer.lobby.Value.Members.ToList())
+            Debug.Log(f);
+    }
 
     void OnDisable() {
         disconnect();
@@ -46,7 +56,7 @@ public class Networker : MonoBehaviour {
         StartCoroutine(foo());
     }
 
-    public void startClient(ulong steamId) {
+    public void startClient(Lobby lobby) {
         IEnumerator foo() {
             disconnect();
 
@@ -57,7 +67,7 @@ public class Networker : MonoBehaviour {
 
             NetworkManager.Singleton.OnClientConnectedCallback += _onClientConnect;
             NetworkManager.Singleton.OnClientDisconnectCallback += _onClientDisconnect;
-            _trans.targetSteamId = steamId;
+            _trans.targetSteamId = lobby.Owner.Id;
             NetworkManager.Singleton.StartClient();
         }
         StartCoroutine(foo());
