@@ -110,7 +110,7 @@ public class MainMenu : MonoBehaviour {
                 Friend f = friends[index];
 
                 UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
-                img.image = Networker.instance.getFriendTexture(f);
+                img.image = Networker.instance.getSteamFriendTexture(f);
 
                 Button btn = element.Q<Button>(_playerCardNameInviteButtonId);
                 btn.text = f.Name;
@@ -156,7 +156,7 @@ public class MainMenu : MonoBehaviour {
             SteamId id = fl.Item1.Id;
 
             UnityEngine.UIElements.Image img = element.Q<UnityEngine.UIElements.Image>(_playerCardAvatarId);
-            img.image = Networker.instance.getFriendTexture(fl.Item1);
+            img.image = Networker.instance.getSteamFriendTexture(fl.Item1);
 
             Label label = element.Q<Label>(_playerInviteCardNameLabelId);
             label.text = fl.Item1.Name;
@@ -210,7 +210,7 @@ public class MainMenu : MonoBehaviour {
         if (_selectedNameInviteBtn == btn) {
             _selectedNameInviteBtn = null;
             btn.text = friend.Name;
-            Networker.instance.inviteFriend(friend);
+            Networker.instance.inviteSteamFriend(friend);
             return;
         }
 
@@ -238,7 +238,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     void _joinFriendInvite(ValueTuple<Friend, Lobby> fl) {
-        Networker.instance.joinLobby(fl.Item2);
+        Networker.instance.joinSteamLobby(fl.Item2);
         _removeFriendInvite(fl.Item1.Id);
     }
 }

@@ -1,4 +1,3 @@
-#region Imports
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using Steamworks;
 using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
-#endregion//Imports
 
 public class Networker : MonoBehaviour {
 #region Variables
@@ -58,14 +56,14 @@ public class Networker : MonoBehaviour {
     }
 
     void OnEnable() {
-        SteamMatchmaking.OnLobbyCreated += _onLobbyCreated;
-        SteamMatchmaking.OnLobbyEntered += _onLobbyEntered;
-        SteamMatchmaking.OnLobbyMemberJoined += _onLobbyMemberJoined;
-        SteamMatchmaking.OnLobbyMemberLeave += _onLobbyMemberLeave;
-        SteamMatchmaking.OnLobbyInvite += _onLobbyInvite;
-        SteamMatchmaking.OnLobbyGameCreated += _onLobbyGameCreated;
-        SteamMatchmaking.OnLobbyMemberDisconnected += _onLobbyMemberDisconnected;
-        SteamFriends.OnGameLobbyJoinRequested += _onGameLobbyJoinRequested;
+        SteamMatchmaking.OnLobbyCreated += _onSteamLobbyCreated;
+        SteamMatchmaking.OnLobbyEntered += _onSteamLobbyEntered;
+        SteamMatchmaking.OnLobbyMemberJoined += _onSteamLobbyMemberJoined;
+        SteamMatchmaking.OnLobbyMemberLeave += _onSteamLobbyMemberLeave;
+        SteamMatchmaking.OnLobbyInvite += _onSteamLobbyInvite;
+        SteamMatchmaking.OnLobbyGameCreated += _onSteamLobbyGameCreated;
+        SteamMatchmaking.OnLobbyMemberDisconnected += _onSteamLobbyMemberDisconnected;
+        SteamFriends.OnGameLobbyJoinRequested += _onSteamGameLobbyJoinRequested;
     }
 
     void Start() => _transport = GetComponent<FacepunchTransport>();
@@ -73,14 +71,14 @@ public class Networker : MonoBehaviour {
     void OnDisable() {
         disconnect();
 
-        SteamMatchmaking.OnLobbyCreated -= _onLobbyCreated;
-        SteamMatchmaking.OnLobbyEntered -= _onLobbyEntered;
-        SteamMatchmaking.OnLobbyMemberJoined -= _onLobbyMemberJoined;
-        SteamMatchmaking.OnLobbyMemberLeave -= _onLobbyMemberLeave;
-        SteamMatchmaking.OnLobbyInvite -= _onLobbyInvite;
-        SteamMatchmaking.OnLobbyGameCreated -= _onLobbyGameCreated;
-        SteamMatchmaking.OnLobbyMemberDisconnected -= _onLobbyMemberDisconnected;
-        SteamFriends.OnGameLobbyJoinRequested -= _onGameLobbyJoinRequested;
+        SteamMatchmaking.OnLobbyCreated -= _onSteamLobbyCreated;
+        SteamMatchmaking.OnLobbyEntered -= _onSteamLobbyEntered;
+        SteamMatchmaking.OnLobbyMemberJoined -= _onSteamLobbyMemberJoined;
+        SteamMatchmaking.OnLobbyMemberLeave -= _onSteamLobbyMemberLeave;
+        SteamMatchmaking.OnLobbyInvite -= _onSteamLobbyInvite;
+        SteamMatchmaking.OnLobbyGameCreated -= _onSteamLobbyGameCreated;
+        SteamMatchmaking.OnLobbyMemberDisconnected -= _onSteamLobbyMemberDisconnected;
+        SteamFriends.OnGameLobbyJoinRequested -= _onSteamGameLobbyJoinRequested;
 
         if (NetworkManager.Singleton == null) return;
 
@@ -126,7 +124,7 @@ public class Networker : MonoBehaviour {
     }
 
     public void disconnect(bool queueStartHost = false) {
-        leaveLobby();
+        leaveSteamLobby();
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
 
         NetworkManager.Singleton.Shutdown(true);
@@ -139,24 +137,13 @@ public class Networker : MonoBehaviour {
         if (!queueStartHost) return;
         startHost();
     }
-
-    void _onServerStarted() {
-        Debug.Log("Networker Host Started");
-        createLobby();
-    }
-
-    void _onClientConnect(ulong clientId) {
-        Debug.Log("Networker Client Connect");
-    }
-
-    void _onClientDisconnect(ulong clientId) => Debug.Log("Networker Client Disconnect");
 #endregion//NetCode
 #region Steam
-    public async void createLobby() {
+    public async void createSteamLobby() {
         steamLobby = await SteamMatchmaking.CreateLobbyAsync();
     }
 
-    public async void joinLobby(Lobby lobby) {
+    public async void joinSteamLobby(Lobby lobby) {
         RoomEnter joining = await lobby.Join();
 
         if (joining != RoomEnter.Success) {
@@ -169,11 +156,11 @@ public class Networker : MonoBehaviour {
         startClient(lobby.Owner.Id);
     }
 
-    public void inviteFriend(Friend friend) {
+    public void inviteSteamFriend(Friend friend) {
         steamLobby.Value.InviteFriend(friend.Id);
     }
 
-    public void leaveLobby() {
+    public void leaveSteamLobby() {
         if (!steamLobby.HasValue) {
             Debug.LogWarning("Not Currently in a Steam Lobby");
             return;
@@ -196,7 +183,7 @@ public class Networker : MonoBehaviour {
         Debug.Log("Successfully Left Steam Lobby");
     }
 
-    public Texture2D getFriendTexture(Friend friend) {
+    public Texture2D getSteamFriendTexture(Friend friend) {
         static Texture2D img2Tex(Image img) {
             Texture2D tex = new Texture2D (
                 (int)img.Width,
@@ -237,7 +224,7 @@ public class Networker : MonoBehaviour {
         return tex;
     }
 
-    public Friend? name2Friend(string name) {
+    public Friend? steamName2SteamFriend(string name) {
         Tuple<SteamFriendCollection.StatusType, int> pair = _steamName2SteamFriend[name];
 
         switch (pair.Item1) {
@@ -257,51 +244,7 @@ public class Networker : MonoBehaviour {
         return null;
     }
 
-    void _onLobbyCreated(Result result, Lobby lobby) {
-        if (result != Result.OK) {
-            Debug.LogWarning("Failed to Create Steam Lobby");
-            return;
-        }
-
-        lobby.SetPrivate();
-        lobby.SetJoinable(true);
-        lobby.SetGameServer(lobby.Owner.Id);
-        _updateFriends();
-        Debug.Log($"Successfully Created Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-    }
-
-    void _onLobbyEntered(Lobby lobby) {
-        Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
-    }
-
-    void _onLobbyMemberJoined(Lobby lobby, Friend friend) {
-        _updateFriends();
-        Debug.Log($"'{friend.Name}' Joined the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-    }
-
-    void _onLobbyMemberLeave(Lobby lobby, Friend friend) {
-        _updateFriends();
-        Debug.Log($"{friend.Name} Left the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-    }
-
-    void _onLobbyInvite(Friend friend, Lobby lobby) {
-        Debug.Log($"{friend.Name} Invited to the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-        onSteamLobbyInvite?.Invoke(friend, lobby);
-    }
-
-    void _onLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId steamId) {
-        Debug.Log($"Steam Lobby Game Created\n  Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}\n  IP: {ip}\n  Port: {port}\n  SteamID: {steamId}");
-    }
-
-    void _onLobbyMemberDisconnected(Lobby lobby, Friend friend) {
-        Debug.Log($"{friend.Name} Disconnected from Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
-    }
-
-    void _onGameLobbyJoinRequested(Lobby lobby, SteamId steamId) {
-        Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
-    }
-
-    void _updateFriends() {
+    void _updateSteamFriends() {
         steamFriends.inLobby.Clear();
         steamFriends.inGame.Clear();
         steamFriends.online.Clear();
@@ -360,4 +303,56 @@ public class Networker : MonoBehaviour {
         onSteamFriendsUpdate?.Invoke();
     }
 #endregion//Steam
+#region Callbacks
+    void _onServerStarted() {
+        Debug.Log("Networker Host Started");
+        createSteamLobby();
+    }
+
+    void _onClientConnect(ulong clientId)
+        => Debug.Log("Networker Client Connect");
+
+    void _onClientDisconnect(ulong clientId)
+        => Debug.Log("Networker Client Disconnect");
+
+    void _onSteamLobbyCreated(Result result, Lobby lobby) {
+        if (result != Result.OK) {
+            Debug.LogWarning("Failed to Create Steam Lobby");
+            return;
+        }
+
+        lobby.SetPrivate();
+        lobby.SetJoinable(true);
+        lobby.SetGameServer(lobby.Owner.Id);
+        _updateSteamFriends();
+        Debug.Log($"Successfully Created Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+    }
+
+    void _onSteamLobbyEntered(Lobby lobby)
+        => Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
+
+    void _onSteamLobbyMemberJoined(Lobby lobby, Friend friend) {
+        _updateSteamFriends();
+        Debug.Log($"'{friend.Name}' Joined the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+    }
+
+    void _onSteamLobbyMemberLeave(Lobby lobby, Friend friend) {
+        _updateSteamFriends();
+        Debug.Log($"{friend.Name} Left the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+    }
+
+    void _onSteamLobbyInvite(Friend friend, Lobby lobby) {
+        Debug.Log($"{friend.Name} Invited to the Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+        onSteamLobbyInvite?.Invoke(friend, lobby);
+    }
+
+    void _onSteamLobbyGameCreated(Lobby lobby, uint ip, ushort port, SteamId steamId)
+        => Debug.Log($"Steam Lobby Game Created\n  Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}\n  IP: {ip}\n  Port: {port}\n  SteamID: {steamId}");
+
+    void _onSteamLobbyMemberDisconnected(Lobby lobby, Friend friend)
+        => Debug.Log($"{friend.Name} Disconnected from Steam Lobby: {lobby.Id}\n  Owned by: {lobby.Owner.Name}");
+
+    void _onSteamGameLobbyJoinRequested(Lobby lobby, SteamId steamId)
+        => Debug.LogWarning("CALLBACK NOT IMPLEMENTED");
+#endregion//Callbacks
 }
