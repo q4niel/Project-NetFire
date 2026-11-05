@@ -128,9 +128,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 184114778}
+  - component: {fileID: 184114782}
   - component: {fileID: 184114780}
   - component: {fileID: 184114781}
-  - component: {fileID: 184114782}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -222,7 +222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 968832ea437240fbe9c5d5a02b03a5a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Networker2
-  forceJoinInvites: 0
 --- !u!1 &299823358
 GameObject:
   m_ObjectHideFlags: 0
