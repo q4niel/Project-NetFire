@@ -86,14 +86,10 @@ public class Networker : MonoBehaviour {
         NetworkManager.Singleton.OnClientConnectedCallback -= _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback -= _onClientDisconnect;
     }
-
-    void OnDestroy() => instance = null;
 #endregion//Event Methods
 #region NetCode
     public void startHost() {
         IEnumerator foo() {
-            disconnect();
-
             while (
                 NetworkManager.Singleton != null
             &&  NetworkManager.Singleton.ShutdownInProgress
@@ -102,13 +98,12 @@ public class Networker : MonoBehaviour {
             NetworkManager.Singleton.OnServerStarted += _onServerStarted;
             NetworkManager.Singleton.StartHost();
         }
+        disconnect();
         StartCoroutine(foo());
     }
 
     public void startClient(ulong id) {
         IEnumerator foo() {
-            disconnect();
-
             while (
                 NetworkManager.Singleton != null
             &&  NetworkManager.Singleton.ShutdownInProgress
@@ -120,10 +115,11 @@ public class Networker : MonoBehaviour {
             _transport.targetSteamId = id;
             NetworkManager.Singleton.StartClient();
         }
+        disconnect();
         StartCoroutine(foo());
     }
 
-    public void disconnect(bool queueStartHost = false) {
+    public void disconnect() {
         leaveSteamLobby();
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
 
@@ -133,9 +129,6 @@ public class Networker : MonoBehaviour {
         NetworkManager.Singleton.OnServerStarted -= _onServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback -= _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback -= _onClientDisconnect;
-
-        if (!queueStartHost) return;
-        startHost();
     }
 #endregion//NetCode
 #region Steam

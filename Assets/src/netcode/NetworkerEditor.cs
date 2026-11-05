@@ -15,7 +15,6 @@ public class NetworkerEditor : Editor {
 
         _draw(() => { _startHost(); });
         _draw(() => { _disconnect(); });
-        _draw(() => { _disconnect2Host(); });
     }
 
     void _draw(Action action) {
@@ -31,10 +30,5 @@ public class NetworkerEditor : Editor {
     void _disconnect() {
         if (!GUILayout.Button("Disconnect")) return;
         _net.disconnect();
-    }
-
-    void _disconnect2Host() {
-        if (!GUILayout.Button("Disconnect & Start Host")) return;
-        _net.disconnect(true);
     }
 }
