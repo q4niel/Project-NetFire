@@ -11,6 +11,7 @@ using UnityEditor;
 using UnityEngine;
 
 #region Editor
+#if UNITY_EDITOR
 [CustomEditor(typeof(Networker))]
 public class NetworkerEditor : Editor {
     public override void OnInspectorGUI() {
@@ -34,6 +35,7 @@ public class NetworkerEditor : Editor {
         networker.stopSystem();
     }
 }
+#endif
 #endregion//Editor
 
 public class Networker : MonoBehaviour {
