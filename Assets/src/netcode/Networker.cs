@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Netcode.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
@@ -24,13 +25,13 @@ public class NetworkerEditor : Editor {
     }
 
     void _startup(Networker networker) {
-        if (!GUILayout.Button("Startup")) return;
-        networker.startup();
+        if (!GUILayout.Button("Start System")) return;
+        networker.startSystem();
     }
 
     void _shutdown(Networker networker) {
-        if (!GUILayout.Button("Shutdown")) return;
-        networker.shutdown();
+        if (!GUILayout.Button("Stop System")) return;
+        networker.stopSystem();
     }
 }
 #endregion//Editor
@@ -112,36 +113,17 @@ public class Networker : MonoBehaviour {
 #endregion//Event Methods
 
 #region API
-    public void startup() {
-        StartCoroutine(_shutdown());
-        StartCoroutine(_startup(true, 0));
-    }
+    public bool isSystemRunning()
+        => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
-    public void startup(ulong id) {
-        StartCoroutine(_shutdown());
-        StartCoroutine(_startup(false, id));
-    }
+    public async void startSystem()
+        => await _startSystem(null, null);
 
-    public void shutdown() => StartCoroutine(_shutdown());
+    public async void startSystem(Friend host, Lobby lobby)
+        => await _startSystem(host, lobby);
 
-    public async void joinSteamLobby(Lobby lobby) {
-        RoomEnter room = await lobby.Join();
-        Debug.Log (@$"Join Steam Lobby...
-            Lobby: {lobby.Id}
-            Owned by: {lobby.Owner.Name}
-        ");
-
-        if (room != RoomEnter.Success) {
-            Debug.LogWarning (@$"Join Steam Lobby...Failed
-                Error: {room}
-            ");
-            return;
-        }
-
-        Debug.Log("Join Steam Lobby...Success");
-        steamLobby = lobby;
-        startup(lobby.Owner.Id);
-    }
+    public async void stopSystem()
+        => await _stopSystem();
 
     public void inviteSteamFriend(Friend friend) {
         Debug.Log (@$"Invite Steam Friend
@@ -214,51 +196,93 @@ public class Networker : MonoBehaviour {
 #endregion
 
 #region Core
-    IEnumerator _startup(bool host, ulong id = 0) {
-        while (
-            NetworkManager.Singleton != null
-        &&  NetworkManager.Singleton.IsListening
-        ) yield return null;
+    async Task _startSystem(Friend? host, Lobby? lobby) {
+        await _stopSystem();
+
+        bool netcodeStatus = false;
+        IEnumerator netcode() {
+            yield return StartCoroutine(_startNetcode(host));
+            netcodeStatus = true;
+        }
+        StartCoroutine(netcode());
+
+        while (!netcodeStatus) await Task.Yield();
+
+        if (lobby == null)
+            await _createSteamLobby();
+        else
+            await _joinSteamLobby(lobby.Value);
+    }
+
+    async Task _stopSystem() {
+        await _leaveSteamLobby();
+
+        bool netcodeStatus = false;
+        IEnumerator netcode() {
+            yield return StartCoroutine(_stopNetcode());
+            netcodeStatus = true;
+        }
+        StartCoroutine(netcode());
+
+        while (!netcodeStatus) await Task.Yield();
+    }
+
+    IEnumerator _startNetcode(Friend? host = null) {
+        while (isSystemRunning()) yield return null;
 
         NetworkManager.Singleton.OnServerStarted += _onServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback += _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback += _onClientDisconnect;
 
-        if (host) {
+        if (host == null) {
             Debug.Log("Networker: Start Host");
             NetworkManager.Singleton.StartHost();
             yield break;
         }
 
         Debug.Log("Networker: Start Client");
-        _transport.targetSteamId = id;
+        _transport.targetSteamId = host.Value.Id;
         NetworkManager.Singleton.StartClient();
     }
 
-    IEnumerator _shutdown() {
-        _leaveSteamLobby();
-
-        if (
-            NetworkManager.Singleton == null
-        || !NetworkManager.Singleton.IsListening
-        ) yield break;
+    IEnumerator _stopNetcode() {
+        if (!isSystemRunning()) yield break;
 
         NetworkManager.Singleton.Shutdown(true);
         Debug.Log("Networker: Shutdown");
 
-        while (
-            NetworkManager.Singleton != null
-        &&  NetworkManager.Singleton.IsListening
-        ) yield return null;
+        while (isSystemRunning()) yield return null;
 
         NetworkManager.Singleton.OnServerStarted -= _onServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback -= _onClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback -= _onClientDisconnect;
     }
-#endregion//NetCode
+#endregion//Core
 
 #region Steam Helpers
-    void _leaveSteamLobby() {
+    async Task _createSteamLobby()
+        => steamLobby = await SteamMatchmaking.CreateLobbyAsync();
+
+    async Task _joinSteamLobby(Lobby lobby) {
+        Debug.Log (@$"Join Steam Lobby...
+            Lobby: {lobby.Id}
+            Owned by: {lobby.Owner.Name}
+        ");
+
+        RoomEnter room = await lobby.Join();
+
+        if (room != RoomEnter.Success) {
+            Debug.LogWarning (@$"Join Steam Lobby...Failed
+                Error: {room}
+            ");
+            return;
+        }
+
+        Debug.Log("Join Steam Lobby...Success");
+        steamLobby = lobby;
+    }
+
+    async Task _leaveSteamLobby() {
         if (!steamLobby.HasValue) {
             Debug.Log("Leave Steam Lobby: Not Currently in a Lobby");
             return;
@@ -279,6 +303,7 @@ public class Networker : MonoBehaviour {
         steamLobby.Value.Leave();
         steamLobby = null;
         Debug.Log("Leave Steam Lobby: Successfull");
+        await Task.Yield();
     }
 
     void _updateSteamFriends() {
@@ -342,10 +367,8 @@ public class Networker : MonoBehaviour {
 #endregion//Steam
 
 #region Callbacks
-    async void _onServerStarted() {
-        Debug.Log("Networker: Server Started");
-        steamLobby = await SteamMatchmaking.CreateLobbyAsync();
-    }
+    void _onServerStarted()
+        => Debug.Log("Networker: Server Started");
 
     void _onClientConnect(ulong clientId)
         => Debug.Log("Networker: Client Connect");
