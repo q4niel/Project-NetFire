@@ -396,7 +396,13 @@ public class Networker : MonoBehaviour {
         _updateSteamFriends();
     }
 
-    void _onSteamLobbyEntered(Lobby lobby) {}
+    void _onSteamLobbyEntered(Lobby lobby) {
+        Debug.Log(@$"Steam Lobby Entered
+            Lobby: {lobby.Id}
+            Owned by: {lobby.Owner.Name}
+        ");
+        _updateSteamFriends();
+    }
 
     void _onSteamLobbyMemberJoined(Lobby lobby, Friend friend) {
         Debug.Log (@$"Steam Lobby Member Joined
