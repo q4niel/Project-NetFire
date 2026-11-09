@@ -1,7 +1,10 @@
 *
 
 !.gitignore
-!.re-mote
+
+!.github/
+!.github/workflows/
+!.github/workflows/gitlab_mirror.yml
 
 !Assets/
 !Assets/**/*
