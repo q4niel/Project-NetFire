@@ -7,15 +7,6 @@
       "dependencies": {},
       "hash": "0fab638470379ace12b0149dfb41c043d23dbce5"
     },
-    "com.doneref.unity-zed-ide": {
-      "version": "https://github.com/Doneref-Studios/Unity-Zed-IDE.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.ide.visualstudio": "2.0.20"
-      },
-      "hash": "1aba4e320e7f38434dfafdf6b355a4eeda227b73"
-    },
     "com.unity.burst": {
       "version": "2.0.0",
       "depth": 2,
