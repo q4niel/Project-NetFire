@@ -73,4 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
   ShowTopMostFoldoutHeaderGroup: 1
-  _levels: []
+  _firstLevelConfig: {fileID: 11400000, guid: 8a9855bfd406c4680a44f39b6b7de80a, type: 2}
+  _otherLevelConfigs:
+  - {fileID: 11400000, guid: 77e4a7c351959f810a5eb14003191ddf, type: 2}
+  - {fileID: 11400000, guid: ce7c9ba3bdb167c2d9ee7dacc3c504e3, type: 2}
